@@ -1,3 +1,9 @@
+## v0.3.0 (2023-05-31)
+
+### Feat
+
+- add converters for *os.File and *multipart.File (#2)
+
 ## v0.2.0 (2023-05-31)
 
 ### Feat
