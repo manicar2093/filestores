@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/manicar2093/filestores"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -18,8 +19,9 @@ func (c SaveableFile) Filename() string {
 	return "gophers/uuid/gopher_saved"
 }
 
-func (c SaveableFile) GetFile() *os.File {
-	return c.File
+func (c SaveableFile) GetStoreInfo() filestores.StoreInfo {
+	info, _ := filestores.FileToStoreInfo(c.File)
+	return info
 }
 
 func TestFilestores(t *testing.T) {

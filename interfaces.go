@@ -1,19 +1,20 @@
 package filestores
 
-import (
-	"os"
-)
+import "io"
 
 type (
 	FileStore interface {
 		Save(input Storable) (string, error)
 		Delete(filepath string) error
 	}
-	Storable interface {
-		Nameable
-		GetFile() *os.File
+
+	StoreInfo struct {
+		Ext, ContentType string
+		Reader           io.Reader
+		Size             int64
 	}
-	Nameable interface {
+	Storable interface {
 		Filename() string
+		GetStoreInfo() StoreInfo
 	}
 )

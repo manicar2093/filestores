@@ -1,11 +1,8 @@
 package filestores
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"net/http"
-	"path/filepath"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -33,27 +30,16 @@ func NewAwsBucket(bucket string, config aws.Config) *AwsBucket {
 }
 
 func (c *AwsBucket) Save(input Storable) (string, error) {
-	file := input.GetFile()
-	defer file.Close()
-	fileInfo, err := file.Stat()
-	if err != nil {
-		return "", err
-	}
-	fileBytes := make([]byte, fileInfo.Size())
-	if _, err := file.Read(fileBytes); err != nil {
-		return "", err
-	}
-	filename := fmt.Sprintf("%s%s", input.Filename(), filepath.Ext(fileInfo.Name()))
-	if err != nil {
-		return "", err
-	}
-	contentType := http.DetectContentType(fileBytes)
+	var (
+		info     = input.GetStoreInfo()
+		filename = fmt.Sprintf("%s%s", input.Filename(), info.Ext)
+	)
 
-	_, err = c.uploader.Upload(context.TODO(), &s3.PutObjectInput{
+	_, err := c.uploader.Upload(context.TODO(), &s3.PutObjectInput{
 		Bucket:      &c.bucket,
 		Key:         &filename,
-		Body:        bytes.NewReader(fileBytes),
-		ContentType: &contentType,
+		Body:        info.Reader,
+		ContentType: &info.ContentType,
 	})
 	if err != nil {
 		return "", err
