@@ -24,7 +24,8 @@ func NewFileSystem(systemPath string) *FileSystem {
 }
 
 func (c *FileSystem) Save(input Storable) (string, error) {
-	filename, nestedDirs := filenameAndNestedDirs(input)
+	file := input.GetFile()
+	filename, nestedDirs := filenameAndNestedDirs(input, file)
 	if err := c.createNestedDirs(nestedDirs); err != nil {
 		return "", err
 	}
@@ -34,7 +35,7 @@ func (c *FileSystem) Save(input Storable) (string, error) {
 	}
 	defer fileDst.Close()
 
-	if _, err := io.Copy(fileDst, input.GetFile()); err != nil {
+	if _, err := io.Copy(fileDst, file); err != nil {
 		return "", err
 	}
 
@@ -61,9 +62,9 @@ func (c *FileSystem) createNestedDirs(nestedDirs string) error {
 	return nil
 }
 
-func filenameAndNestedDirs(input Storable) (string, string) {
+func filenameAndNestedDirs(input Storable, file *os.File) (string, string) {
 	filenameSplited := strings.Split(input.Filename(), "/")
-	filename := filenameSplited[len(filenameSplited)-1]
+	filename := fmt.Sprintf("%s%s", filenameSplited[len(filenameSplited)-1], filepath.Ext(file.Name()))
 	nestedDirs := strings.Join(filenameSplited[:len(filenameSplited)-1], "/")
 	return filename, nestedDirs
 }

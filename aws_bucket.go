@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"path/filepath"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -42,7 +43,7 @@ func (c *AwsBucket) Save(input Storable) (string, error) {
 	if _, err := file.Read(fileBytes); err != nil {
 		return "", err
 	}
-	filename := input.Filename()
+	filename := fmt.Sprintf("%s%s", input.Filename(), filepath.Ext(fileInfo.Name()))
 	if err != nil {
 		return "", err
 	}
