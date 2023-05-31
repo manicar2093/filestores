@@ -1,9 +1,7 @@
 package filestores_test
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -17,7 +15,7 @@ type SaveableFile struct {
 }
 
 func (c SaveableFile) Filename() string {
-	return fmt.Sprintf("gophers/uuid/gopher_saved%s", filepath.Ext(c.File.Name()))
+	return "gophers/uuid/gopher_saved"
 }
 
 func (c SaveableFile) GetFile() *os.File {
