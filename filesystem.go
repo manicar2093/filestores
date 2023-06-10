@@ -50,6 +50,15 @@ func (c *FileSystem) Delete(filepath string) error {
 	return os.Remove(c.removeEnpointFrom(filepath))
 }
 
+func (c *FileSystem) Get(objectPath string) (ObjectInfo, error) {
+	file, err := os.Open(c.removeEnpointFrom(objectPath))
+	if err != nil {
+		return ObjectInfo{}, err
+	}
+
+	return FileToStoreInfo(file)
+}
+
 func (c *FileSystem) removeEnpointFrom(file string) string {
 	path := filepath.Join(strings.Split(file, "/")[3:]...)
 	return fmt.Sprintf("%s/%s", c.systemPath, path)
@@ -62,7 +71,7 @@ func (c *FileSystem) createNestedDirs(nestedDirs string) error {
 	return nil
 }
 
-func filenameAndNestedDirs(input Storable, info StoreInfo) (string, string) {
+func filenameAndNestedDirs(input Storable, info ObjectInfo) (string, string) {
 	filenameSplited := strings.Split(input.Filename(), "/")
 	filename := fmt.Sprintf("%s%s", filenameSplited[len(filenameSplited)-1], info.Ext)
 	nestedDirs := strings.Join(filenameSplited[:len(filenameSplited)-1], "/")

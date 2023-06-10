@@ -47,6 +47,23 @@ var _ = Describe("FileSystem", Ordered, func() {
 		})
 	})
 
+	Describe("Get", func() {
+		It("retreives a file from bucket", func() {
+			var (
+				expectedContentType = "image/png"
+				expectedExtension   = ".png"
+			)
+
+			got, err := store.Get(expectedFileUrl)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(got.ContentType).To(Equal(expectedContentType))
+			Expect(got.Ext).To(Equal(expectedExtension))
+			Expect(got.Size).ToNot(BeZero())
+			Expect(got.Reader).ToNot(BeNil())
+		})
+	})
+
 	Describe("Delete", func() {
 		It("removes file from system", func() {
 			err := store.Delete(expectedFileUrl)
