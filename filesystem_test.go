@@ -21,7 +21,7 @@ var _ = Describe("FileSystem", Ordered, func() {
 	BeforeAll(func() {
 		gopherFile = Must(os.Open("./gopher.png"))
 		systemPath = "./testing"
-		expectedFileUrl = "srv://testing/gophers/uuid/gopher_saved.png"
+		expectedFileUrl = "/testing/gophers/uuid/gopher_saved.png"
 		expectedFilePath = "./testing/gophers/uuid/gopher_saved.png"
 		store = filestores.NewFileSystem(systemPath)
 	})
@@ -48,7 +48,7 @@ var _ = Describe("FileSystem", Ordered, func() {
 	})
 
 	Describe("Get", func() {
-		It("retreives a file from bucket", func() {
+		It("retreives a file from file system", func() {
 			var (
 				expectedContentType = "image/png"
 				expectedExtension   = ".png"
