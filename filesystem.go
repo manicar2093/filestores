@@ -12,8 +12,6 @@ type FileSystem struct {
 	systemPath string
 }
 
-const serverPrefix = "srv:/"
-
 func NewFileSystem(systemPath string) *FileSystem {
 	if err := os.MkdirAll(systemPath, 0755); err != nil {
 		panic(err)
@@ -40,8 +38,7 @@ func (c *FileSystem) Save(input Storable) (string, error) {
 	}
 
 	return fmt.Sprintf(
-		"%s/%s",
-		serverPrefix,
+		"/%s",
 		filepath.Join(c.systemPath, nestedDirs, filename),
 	), nil
 }
@@ -60,7 +57,7 @@ func (c *FileSystem) Get(objectPath string) (ObjectInfo, error) {
 }
 
 func (c *FileSystem) removeEnpointFrom(file string) string {
-	path := filepath.Join(strings.Split(file, "/")[3:]...)
+	path := filepath.Join(strings.Split(file, "/")[2:]...)
 	return fmt.Sprintf("%s/%s", c.systemPath, path)
 }
 
