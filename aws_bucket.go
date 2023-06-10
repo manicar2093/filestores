@@ -3,6 +3,7 @@ package filestores
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -49,10 +50,26 @@ func (c *AwsBucket) Save(input Storable) (string, error) {
 
 }
 
-func (c *AwsBucket) Delete(filepath string) error {
+func (c *AwsBucket) Get(objectPath string) (ObjectInfo, error) {
+	found, err := c.client.GetObject(context.Background(), &s3.GetObjectInput{
+		Bucket: &c.bucket,
+		Key:    &objectPath,
+	})
+	if err != nil {
+		return ObjectInfo{}, err
+	}
+	return ObjectInfo{
+		ContentType: *found.ContentType,
+		Size:        found.ContentLength,
+		Reader:      found.Body,
+		Ext:         filepath.Ext(objectPath),
+	}, nil
+}
+
+func (c *AwsBucket) Delete(objectPath string) error {
 	if _, err := c.client.DeleteObject(context.Background(), &s3.DeleteObjectInput{
 		Bucket: &c.bucket,
-		Key:    &filepath,
+		Key:    &objectPath,
 	}); err != nil {
 		return err
 	}

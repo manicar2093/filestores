@@ -19,7 +19,7 @@ func (c SaveableFile) Filename() string {
 	return "gophers/uuid/gopher_saved"
 }
 
-func (c SaveableFile) GetStoreInfo() filestores.StoreInfo {
+func (c SaveableFile) GetStoreInfo() filestores.ObjectInfo {
 	info, _ := filestores.FileToStoreInfo(c.File)
 	return info
 }
