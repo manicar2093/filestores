@@ -1,3 +1,10 @@
+## v0.4.0 (2023-06-10)
+
+### Feat
+
+- remove server prefix on filesystem
+- add get file method
+
 ## v0.3.0 (2023-05-31)
 
 ### Feat
