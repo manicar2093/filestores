@@ -1,3 +1,9 @@
+## v0.4.1 (2023-06-13)
+
+### Fix
+
+- remove s3 url when getting object
+
 ## v0.4.0 (2023-06-10)
 
 ### Feat
