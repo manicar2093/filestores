@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -46,11 +47,12 @@ func (c *AwsBucket) Save(input Storable) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", c.bucket, c.config.Region, filename), nil
+	return fmt.Sprintf("%s%s", c.getBucketUrl(), filename), nil
 
 }
 
 func (c *AwsBucket) Get(objectPath string) (ObjectInfo, error) {
+	objectPath = strings.Replace(objectPath, c.getBucketUrl(), "", 1)
 	found, err := c.client.GetObject(context.Background(), &s3.GetObjectInput{
 		Bucket: &c.bucket,
 		Key:    &objectPath,
@@ -75,4 +77,8 @@ func (c *AwsBucket) Delete(objectPath string) error {
 	}
 
 	return nil
+}
+
+func (c *AwsBucket) getBucketUrl() string {
+	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/", c.bucket, c.config.Region)
 }
