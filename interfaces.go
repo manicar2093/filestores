@@ -8,7 +8,7 @@ type (
 	}
 
 	Storable interface {
-		Filename() string
+		Filename() string // returns the filename without trailing slash and extension like my/path/to/file
 		GetStoreInfo() ObjectInfo
 	}
 )

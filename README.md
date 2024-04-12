@@ -6,7 +6,18 @@ I was getting tired creating implementations to save files in local or cloud. By
 
 ## How to use
 
-Create a struct which implements `filestores.Storable` and select one of the available two options:
+Create a struct which implements `filestores.Storable`:
+
+```go
+type Storable interface {
+    Filename() string
+    GetStoreInfo() ObjectInfo
+}
+```
+
+**IMPORTANT:** When you implement `Filename() string` method remember not to put trailing slash `/` at the beginning of the name and without file extension. It should be a return like `my/path/to/file`. This may cause unintended results
+
+And select one of the available two options:
 
 ### Local
 
