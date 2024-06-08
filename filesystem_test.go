@@ -73,4 +73,42 @@ var _ = Describe("FileSystem", Ordered, func() {
 
 		})
 	})
+
+	Describe("all crud process", func() {
+		It("complete all without failing", func() {
+
+			var (
+				file       = Must(os.Open("./gopher.png"))
+				systemPath = "./testing/nested_testing/nested_testing_2"
+				// expectedFileUrl  = "/testing/nested_testing/nested_testing/gophers/uuid/gopher_saved.png"
+				// expectedFilePath = "./testing/nested_testing/nested_testing/gophers/uuid/gopher_saved.png"
+				internalStore = filestores.NewFileSystem(systemPath)
+				input         = SaveableFile{
+					File: file,
+				}
+			)
+
+			gotUrl, err := internalStore.Save(input)
+
+			Expect(err).ToNot(HaveOccurred())
+
+			var (
+				expectedContentType = "image/png"
+				expectedExtension   = ".png"
+			)
+
+			gotFile, err := internalStore.Get(gotUrl)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(gotFile.ContentType).To(Equal(expectedContentType))
+			Expect(gotFile.Ext).To(Equal(expectedExtension))
+			Expect(gotFile.Size).ToNot(BeZero())
+			Expect(gotFile.Reader).ToNot(BeNil())
+
+			err = internalStore.Delete(gotUrl)
+
+			Expect(err).ToNot(HaveOccurred())
+
+		})
+	})
 })

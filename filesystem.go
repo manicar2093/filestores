@@ -4,21 +4,31 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
 
 type FileSystem struct {
-	systemPath string
+	systemPath         string
+	isSimpleSystemPath bool
 }
 
 func NewFileSystem(systemPath string) *FileSystem {
 	if err := os.MkdirAll(systemPath, 0755); err != nil {
 		panic(err)
 	}
-	return &FileSystem{
+	instance := &FileSystem{
 		systemPath: systemPath,
 	}
+	if !path.IsAbs(systemPath) {
+		instance.systemPath = fmt.Sprintf("/%s", path.Clean(systemPath))
+	}
+	if len(strings.Split(instance.systemPath, "/")) == 1 {
+		instance.isSimpleSystemPath = true
+	}
+
+	return instance
 }
 
 func (c *FileSystem) Save(input Storable) (string, error) {
@@ -27,7 +37,7 @@ func (c *FileSystem) Save(input Storable) (string, error) {
 	if err := c.createNestedDirs(nestedDirs); err != nil {
 		return "", err
 	}
-	fileDst, err := os.Create(fmt.Sprintf("%s/%s/%s", c.systemPath, nestedDirs, filename))
+	fileDst, err := os.Create(path.Join(".", c.systemPath, nestedDirs, filename))
 	if err != nil {
 		return "", err
 	}
@@ -37,10 +47,7 @@ func (c *FileSystem) Save(input Storable) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf(
-		"/%s",
-		filepath.Join(c.systemPath, nestedDirs, filename),
-	), nil
+	return filepath.Join(c.systemPath, nestedDirs, filename), nil
 }
 
 func (c *FileSystem) Delete(filepath string) error {
@@ -57,12 +64,17 @@ func (c *FileSystem) Get(objectPath string) (ObjectInfo, error) {
 }
 
 func (c *FileSystem) removeEnpointFrom(file string) string {
-	path := filepath.Join(strings.Split(file, "/")[2:]...)
-	return fmt.Sprintf("%s/%s", c.systemPath, path)
+	var filePath string
+	if c.isSimpleSystemPath {
+		filePath = filepath.Join(strings.Split(file, "/")[2:]...)
+	} else {
+		filePath = strings.Replace(file, c.systemPath, "", 1)
+	}
+	return path.Join(".", c.systemPath, filePath)
 }
 
 func (c *FileSystem) createNestedDirs(nestedDirs string) error {
-	if err := os.MkdirAll(filepath.Join("./", c.systemPath, nestedDirs), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(".", c.systemPath, nestedDirs), 0755); err != nil {
 		return err
 	}
 	return nil
