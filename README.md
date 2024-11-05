@@ -1,8 +1,16 @@
 # Filestores
 
+**🚧 This library as under development until release of version `1.x.x` 🚧**
+
 ![filestores](gopher_small.png "Filestores")
 
 I was getting tired creating implementations to save files in local or cloud. By now local and aws is supported.
+
+## Motivation
+
+I'm not a big fan of pay when I'm developing something new. This is where comes `filestores` idea. 
+
+This I mainly use it when in develop to use localhost to serve files and, when I deploy my project, I can configure an AWS Bucket (only option available by now), without changing many code.
 
 ## How to use
 
@@ -12,6 +20,24 @@ Create a struct which implements `filestores.Storable`:
 type Storable interface {
     Filename() string
     GetStoreInfo() ObjectInfo
+}
+```
+
+Like this:
+
+```go
+type StorablePicture struct {
+	Id uuid.UUID
+	FileHeader           *multipart.FileHeader
+}
+
+func (c StorablePicture) Filename() string {
+	return fmt.Sprintf("%s", c.Id)
+}
+
+func (c StorablePicture) GetStoreInfo() filestores.ObjectInfo {
+	info, _ := filestores.FileHeaderToStoreInfo(c.FileHeader)
+	return info
 }
 ```
 
@@ -25,7 +51,7 @@ Uses filesystem to save files. To use it you can:
 
 ```golang
 func main() {
-    filestore := filestores.NewFileSystem("./uploads")
+    filestore := filestores.NewFileSystem("./uploads", "http://localhost:5000")
     //...
 }
 ```
@@ -53,3 +79,7 @@ There are two helpers to create a `filestores.ObjectInfo` instance need to imple
 ## Reminders
 
 This just cover the basic need to save files...by now.
+
+## What comes next?
+
+I found [go-cloud](https://github.com/google/go-cloud) project which aims to do possible to use any cloud implementation using just one library. I'm thinking to implement it with `filestores` to reach all go-cloud supported storage services.
