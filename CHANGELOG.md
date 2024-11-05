@@ -1,3 +1,10 @@
+## v0.6.0 (2024-11-05)
+
+### Feat
+
+- add hostname to filesystem store
+- add hostname to implementation
+
 ## v0.5.0 (2024-06-08)
 
 ### Feat
