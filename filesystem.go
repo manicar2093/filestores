@@ -1,6 +1,7 @@
 package filestores
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -12,17 +13,24 @@ import (
 
 type FileSystem struct {
 	systemPath         string
-	hostname           string
+	hostname           *url.URL
 	isSimpleSystemPath bool
 }
 
 func NewFileSystem(systemPath, hostname string) *FileSystem {
+	hostnameAsUrl, err := url.Parse(hostname)
+	if err != nil {
+		panic(err)
+	}
+	if hostnameAsUrl.Scheme == "" {
+		panic(errors.New("hostname has no schema"))
+	}
 	if err := os.MkdirAll(systemPath, 0755); err != nil {
 		panic(err)
 	}
 	instance := &FileSystem{
 		systemPath: systemPath,
-		hostname:   hostname,
+		hostname:   hostnameAsUrl,
 	}
 	if !path.IsAbs(systemPath) {
 		instance.systemPath = fmt.Sprintf("/%s", path.Clean(systemPath))
@@ -36,8 +44,8 @@ func NewFileSystem(systemPath, hostname string) *FileSystem {
 
 func (c *FileSystem) Save(input Storable) (string, error) {
 	info := input.GetStoreInfo()
-	filename, nestedDirs := filenameAndNestedDirs(input, info)
-	if err := c.createNestedDirs(nestedDirs); err != nil {
+	filename, nestedDirs, err := c.getFilenameAndCreateNestedDirs(input, info)
+	if err != nil {
 		return "", err
 	}
 	fileDst, err := os.Create(path.Join(".", c.systemPath, nestedDirs, filename))
@@ -88,16 +96,19 @@ func (c *FileSystem) removeEnpointFrom(file string) (string, error) {
 	return path.Join(".", c.systemPath, filePath), nil
 }
 
+func (c *FileSystem) getFilenameAndCreateNestedDirs(input Storable, info ObjectInfo) (string, string, error) {
+	filenameSplited := strings.Split(input.Filename(), "/")
+	filename := fmt.Sprintf("%s%s", filenameSplited[len(filenameSplited)-1], info.Ext)
+	nestedDirs := strings.Join(filenameSplited[:len(filenameSplited)-1], "/")
+	if err := c.createNestedDirs(nestedDirs); err != nil {
+		return "", "", err
+	}
+	return filename, nestedDirs, nil
+}
+
 func (c *FileSystem) createNestedDirs(nestedDirs string) error {
 	if err := os.MkdirAll(filepath.Join(".", c.systemPath, nestedDirs), 0755); err != nil {
 		return err
 	}
 	return nil
-}
-
-func filenameAndNestedDirs(input Storable, info ObjectInfo) (string, string) {
-	filenameSplited := strings.Split(input.Filename(), "/")
-	filename := fmt.Sprintf("%s%s", filenameSplited[len(filenameSplited)-1], info.Ext)
-	nestedDirs := strings.Join(filenameSplited[:len(filenameSplited)-1], "/")
-	return filename, nestedDirs
 }
