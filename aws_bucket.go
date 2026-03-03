@@ -44,7 +44,7 @@ func (c *AwsBucket) Save(input Storable) (string, error) {
 		ContentType: &info.ContentType,
 	})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("uploading errors: %w", err)
 	}
 
 	return fmt.Sprintf("%s%s", c.getBucketUrl(), filename), nil

@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/joho/godotenv"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -24,9 +25,18 @@ var _ = Describe("AwsBucket", Ordered, Labels(cloudLabels), func() {
 	)
 
 	BeforeAll(func() {
+		godotenv.Load(".env")
 		gopherFile = Must(os.Open("./gopher.png"))
-		bucketName = os.Getenv("BUCKET_NAME")
-		cfg = Must(config.LoadDefaultConfig(context.Background()))
+		bucketName = "test"
+		cfg = Must(config.LoadDefaultConfig(context.Background(), config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
+			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				// Return a custom endpoint for all services, or add logic to check 'service'
+				return aws.Endpoint{
+					URL: "http://s3.localhost.localstack.cloud:4566",
+					// You can also configure other options like SigningRegion, etc.
+				}, nil
+			}),
+		)))
 		expectedFilePath = "gophers/uuid/gopher_saved.png"
 		expectedFileUrl = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", bucketName, cfg.Region, expectedFilePath)
 		store = filestores.NewAwsBucket(bucketName, cfg)
