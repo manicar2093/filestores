@@ -21,18 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           go mod download
-      - name: Start LocalStack
-        run: |
-          bash setup-localstack.sh start
       - name: Tests
         run: make test
       - name: Integration Tests
         run: make test-integration
-        env:
-          AWS_ACCESS_KEY_ID: test
-          AWS_SECRET_ACCESS_KEY: test
-          AWS_REGION: us-east-1
-      - name: Stop LocalStack
-        if: always()
-        run: |
-          bash setup-localstack.sh stop
