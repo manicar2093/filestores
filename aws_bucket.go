@@ -62,7 +62,7 @@ func (c *AwsBucket) Get(objectPath string) (ObjectInfo, error) {
 	}
 	return ObjectInfo{
 		ContentType: *found.ContentType,
-		Size:        found.ContentLength,
+		Size:        *found.ContentLength,
 		Reader:      found.Body,
 		Ext:         filepath.Ext(objectPath),
 	}, nil
