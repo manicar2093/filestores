@@ -6,3 +6,4 @@ test-integration:
 	@ go run github.com/onsi/ginkgo/v2/ginkgo -v --label-filter="integration" ./...
 	@ bash setup-localstack.sh stop
 
+test-all: test test-integration
