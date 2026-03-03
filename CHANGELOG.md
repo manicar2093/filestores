@@ -1,3 +1,13 @@
+## v0.7.0 (2026-03-03)
+
+### Feat
+
+- move to go 1.25
+
+### Fix
+
+- add dereference for file size
+
 ## v0.6.0 (2024-11-05)
 
 ### Feat
